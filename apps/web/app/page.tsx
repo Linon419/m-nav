@@ -15,7 +15,7 @@ export default async function Page() {
 
   return (
     <SiteTitleProvider>
-      <WallpaperBackground keywords={process.env.WALLPAPER_KEYWORDS} />
+      <WallpaperBackground keywords={process.env.WALLPAPER_KEYWORDS || undefined} />
       <div data-wrapper='' className='flex flex-1 flex-col min-h-svh'>
         <SiteHeader />
 
