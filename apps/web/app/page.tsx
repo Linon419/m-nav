@@ -11,15 +11,13 @@ import { getPageData } from '@/lib/notion';
 export default async function Page() {
   await connection()
 
-  const pageData = await getPageData();
-
   return (
     <SiteTitleProvider>
-      <WallpaperBackground keywords={pageData.wallpaperKeywords} />
-      <div data-wrapper='' className='border-grid flex flex-1 flex-col min-h-svh'>
+      <WallpaperBackground keywords={process.env.WALLPAPER_KEYWORDS} />
+      <div data-wrapper='' className='flex flex-1 flex-col min-h-svh'>
         <SiteHeader />
 
-        <main className='flex flex-1 flex-col container-wrapper p-4'>
+        <main className='flex flex-1 flex-col max-w-[1400px] min-[1800px]:max-w-screen-2xl mx-auto w-full p-4'>
           <Suspense fallback={<GridSkeleton />}>
             <SiteContent />
           </Suspense>

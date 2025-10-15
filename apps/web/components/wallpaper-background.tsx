@@ -106,15 +106,12 @@ export function WallpaperBackground({ keywords }: WallpaperBackgroundProps) {
   }
 
   return (
-    <>
-      <div
-        className="fixed inset-0 -z-10 bg-cover bg-center bg-no-repeat transition-opacity duration-1000"
-        style={{
-          backgroundImage: `url(${currentWallpaper})`,
-          opacity,
-        }}
-      />
-      <div className="fixed inset-0 -z-10 bg-black/40" />
-    </>
+    <div
+      className="fixed inset-0 -z-10 bg-cover bg-center bg-no-repeat transition-opacity duration-1000"
+      style={{
+        backgroundImage: `url(${currentWallpaper})`,
+        opacity,
+      }}
+    />
   );
 }
