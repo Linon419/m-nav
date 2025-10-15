@@ -23,13 +23,23 @@ export function SiteCard({
   href: string;
   category: string;
 }) {
+  // Safely get hostname from href
+  const getHostname = (url: string) => {
+    if (!url) return 'default';
+    try {
+      return new URL(url).hostname;
+    } catch {
+      return 'default';
+    }
+  };
+
   return (
     <Card className='group hover:shadow-md transition-shadow rounded-sm shadow-none'>
       <CardHeader>
         <CardTitle className='flex items-center flex-row justify-between'>
           <div className='flex items-center flex-row gap-2'>
             <Image
-              src={`/favicon/${new URL(href || '').hostname}`}
+              src={`/favicon/${getHostname(href)}`}
               alt={title}
               width={20}
               height={20}
