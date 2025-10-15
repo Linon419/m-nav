@@ -97,6 +97,7 @@ export interface PageData {
   title: string;
   description: string;
   items: Record<string, DatabaseItem[]>;
+  wallpaperKeywords?: string;
 }
 
 const getPageDataInternal = async (): Promise<PageData> => {
@@ -130,6 +131,7 @@ const getPageDataInternal = async (): Promise<PageData> => {
       rawMetadata?.properties?.title?.[0]?.[0] ||
       'Navigation';
     const description = rawMetadata?.format?.seo_description || '';
+    const wallpaperKeywords = rawMetadata?.properties?.wallpaper_keywords?.[0]?.[0] || '';
 
     // Get all page IDs from the collection
     const pageGroups = getAllPageIds(
@@ -178,6 +180,7 @@ const getPageDataInternal = async (): Promise<PageData> => {
       title,
       description,
       items: itemsByType,
+      wallpaperKeywords,
     };
   } catch (error) {
     console.error('Error fetching Notion data:', error);
