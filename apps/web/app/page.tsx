@@ -8,6 +8,8 @@ import { GridSkeleton } from '@/components/GridSkeleton';
 import { connection } from 'next/server';
 import { getPageData } from '@/lib/notion';
 
+export const revalidate = 3600; // Revalidate every 1 hour
+
 export default async function Page() {
   await connection()
 

@@ -51,7 +51,7 @@ export async function fetchRandomWallpaper(query?: string): Promise<string> {
       });
     }
 
-    return data.urls.regular;
+    return data.urls.full;
   } catch (error) {
     console.error('Error fetching wallpaper:', error);
     return '';

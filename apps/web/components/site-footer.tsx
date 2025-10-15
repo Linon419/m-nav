@@ -2,9 +2,9 @@ import { siteConfig } from '@/config/site'
 
 export function SiteFooter() {
   return (
-    <footer className="border-grid border-t py-6 md:py-0">
-      <div className="container-wrapper">
-        <div className="container py-4">
+    <footer className="py-6 md:py-0">
+      <div className="max-w-[1400px] min-[1800px]:max-w-screen-2xl mx-auto w-full">
+        <div className="px-4 xl:px-6 mx-auto max-w-screen-2xl py-4">
           <div className="text-balance text-center text-sm leading-loose text-muted-foreground md:text-left flex justify-between">
             <span>
               Built by{' '}
