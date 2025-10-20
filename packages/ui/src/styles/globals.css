@@ -163,7 +163,7 @@
   }
 
   .border-grid {
-    @apply border-border/50 dark:border-border border-dashed;
+    @apply border-border/50 dark:border-border;
   }
 
   .container-wrapper {
