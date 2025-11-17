@@ -19,7 +19,7 @@ export default async function Page() {
       <div data-wrapper='' className='flex flex-1 flex-col min-h-svh'>
         <SiteHeader />
 
-        <main className='flex flex-1 flex-col max-w-[1400px] min-[1800px]:max-w-screen-2xl mx-auto w-full p-4'>
+        <main className='flex flex-1 flex-col max-w-[1400px] min-[1800px]:max-w-screen-2xl mx-auto w-full p-3 sm:p-4 md:p-6'>
           <Suspense fallback={<GridSkeleton />}>
             <SiteContent />
           </Suspense>

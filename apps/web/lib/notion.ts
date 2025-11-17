@@ -98,6 +98,8 @@ export interface PageData {
   description: string;
   items: Record<string, DatabaseItem[]>;
   wallpaperKeywords?: string;
+  icon?: string;
+  iconType?: 'emoji' | 'external' | 'file';
 }
 
 const getPageDataInternal = async (): Promise<PageData> => {
@@ -132,6 +134,29 @@ const getPageDataInternal = async (): Promise<PageData> => {
       'Navigation';
     const description = rawMetadata?.format?.seo_description || '';
     const wallpaperKeywords = rawMetadata?.properties?.wallpaper_keywords?.[0]?.[0] || '';
+
+    // Get page icon
+    const pageIcon = rawMetadata?.format?.page_icon;
+    let icon: string | undefined;
+    let iconType: 'emoji' | 'external' | 'file' | undefined;
+
+    if (pageIcon) {
+      // Check if it's an emoji (single character or emoji sequence)
+      if (typeof pageIcon === 'string' && pageIcon.length <= 10 && !/^http/.test(pageIcon)) {
+        icon = pageIcon;
+        iconType = 'emoji';
+      }
+      // Check if it's an external URL
+      else if (typeof pageIcon === 'string' && pageIcon.startsWith('http')) {
+        icon = pageIcon;
+        iconType = 'external';
+      }
+      // Check if it's a Notion file reference
+      else if (typeof pageIcon === 'string' && pageIcon.startsWith('/')) {
+        icon = `https://www.notion.so${pageIcon}`;
+        iconType = 'file';
+      }
+    }
 
     // Get all page IDs from the collection
     const pageGroups = getAllPageIds(
@@ -181,6 +206,8 @@ const getPageDataInternal = async (): Promise<PageData> => {
       description,
       items: itemsByType,
       wallpaperKeywords,
+      icon,
+      iconType,
     };
   } catch (error) {
     console.error('Error fetching Notion data:', error);

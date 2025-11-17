@@ -12,14 +12,17 @@ interface SiteContentClientProps {
 
 export function SiteContentClient({ siteData }: SiteContentClientProps) {
   const { searchQuery } = useSearchContext();
-  const { setTitle } = useSiteTitle();
+  const { setTitle, setIcon } = useSiteTitle();
 
-  // 动态更新标题
+  // 动态更新标题和图标
   useEffect(() => {
     if (siteData.title) {
       setTitle(siteData.title);
     }
-  }, [siteData.title, setTitle]);
+    if (siteData.icon) {
+      setIcon(siteData.icon, siteData.iconType);
+    }
+  }, [siteData.title, siteData.icon, siteData.iconType, setTitle, setIcon]);
 
   const filteredData = useMemo(() => {
     if (!searchQuery.trim()) {
@@ -50,9 +53,9 @@ export function SiteContentClient({ siteData }: SiteContentClientProps) {
   return (
     <>
       {Object.keys(filteredData).map((type: string) => (
-        <div key={type} className='mb-8'>
-          <h2 className='text-xl font-semibold mb-4 capitalize'>{type}</h2>
-          <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
+        <div key={type} className='mb-6 sm:mb-8'>
+          <h2 className='text-lg sm:text-xl font-semibold mb-3 sm:mb-4 capitalize'>{type}</h2>
+          <div className='grid gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
             {filteredData[type]?.map((item: DatabaseItem) => (
               <SiteCard
                 key={item.id}
@@ -67,7 +70,7 @@ export function SiteContentClient({ siteData }: SiteContentClientProps) {
       ))}
       {Object.keys(filteredData).length === 0 && searchQuery.trim() && (
         <div className='text-center py-8'>
-          <p className='text-muted-foreground'>
+          <p className='text-muted-foreground text-sm sm:text-base'>
             没有找到与 &quot;{searchQuery}&quot; 相关的结果
           </p>
         </div>
