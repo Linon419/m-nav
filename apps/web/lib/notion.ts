@@ -10,6 +10,22 @@ const notion = new NotionAPI({
   userTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 });
 
+function unwrapRecordValue<T = any>(record: any): T | null {
+  if (!record) return null;
+
+  const firstLevel = record.value ?? record;
+  if (!firstLevel || typeof firstLevel !== 'object') {
+    return firstLevel as T;
+  }
+
+  // Compatible with both old and new notion-client record envelopes.
+  if ('role' in firstLevel && 'value' in firstLevel) {
+    return firstLevel.value as T;
+  }
+
+  return firstLevel as T;
+}
+
 // Helper function to get all page IDs from a collection
 export default function getAllPageIds(
   collectionQuery: Record<string, any>,
@@ -24,14 +40,14 @@ export default function getAllPageIds(
 
   try {
     // Safely access the collection data
-    const collectionData = collectionQuery[collectionId];
+    const collectionData = unwrapRecordValue(collectionQuery[collectionId]);
     if (!collectionData) return [];
 
     const viewId = viewIds[0];
     if (!viewId) return [];
 
     // Type assertion to avoid TypeScript error
-    const view = collectionData[viewId] as any;
+    const view = unwrapRecordValue(collectionData[viewId]) as any;
     const tableGroups = view.table_groups || view.list_groups;
     if (!view || !tableGroups || !tableGroups.results) return [];
 
@@ -118,11 +134,11 @@ const getPageDataInternal = async (): Promise<PageData> => {
     });
 
     // Get collection data
-    const collection = Object.values(recordMap.collection)[0]?.value;
+    const collection = unwrapRecordValue(Object.values(recordMap.collection)[0]);
     const collectionQuery = recordMap.collection_query;
     const block = recordMap.block;
     const schema = collection?.schema;
-    const rawMetadata = block[pageId]?.value as any;
+    const rawMetadata = unwrapRecordValue(block[pageId]) as any;
     const collectionView = recordMap.collection_view;
     const collectionId = Object.keys(recordMap.collection)[0];
     const viewIds = rawMetadata?.view_ids as string[] | undefined;
@@ -179,7 +195,7 @@ const getPageDataInternal = async (): Promise<PageData> => {
           const blockItem = block[id];
           if (!blockItem) return;
 
-          const value = blockItem.value;
+          const value = unwrapRecordValue(blockItem);
           if (!value) return;
 
           const props = getPageProperties(
