@@ -118,6 +118,50 @@ export interface PageData {
   iconType?: 'emoji' | 'external' | 'file';
 }
 
+function resolveNotionIcon(
+  rawIcon: unknown
+): { icon?: string; iconType?: 'emoji' | 'external' | 'file' } {
+  if (!rawIcon) return {};
+
+  if (typeof rawIcon === 'string') {
+    const iconValue = rawIcon.trim();
+    if (!iconValue) return {};
+
+    if (/^https?:\/\//.test(iconValue)) {
+      return { icon: iconValue, iconType: 'external' };
+    }
+
+    if (iconValue.startsWith('/')) {
+      return { icon: `https://www.notion.so${iconValue}`, iconType: 'file' };
+    }
+
+    return { icon: iconValue, iconType: 'emoji' };
+  }
+
+  if (typeof rawIcon === 'object') {
+    const iconObject = rawIcon as Record<string, any>;
+
+    if (typeof iconObject.emoji === 'string') {
+      return { icon: iconObject.emoji, iconType: 'emoji' };
+    }
+
+    if (typeof iconObject.url === 'string') {
+      const iconType = iconObject.url.startsWith('http') ? 'external' : 'file';
+      return { icon: iconObject.url, iconType };
+    }
+
+    if (typeof iconObject.external?.url === 'string') {
+      return { icon: iconObject.external.url, iconType: 'external' };
+    }
+
+    if (typeof iconObject.file?.url === 'string') {
+      return { icon: iconObject.file.url, iconType: 'file' };
+    }
+  }
+
+  return {};
+}
+
 const getPageDataInternal = async (): Promise<PageData> => {
   if (!process.env.NOTION_PAGE_ID) {
     throw new Error('NOTION_PAGE_ID is not defined in environment variables');
@@ -151,28 +195,14 @@ const getPageDataInternal = async (): Promise<PageData> => {
     const description = rawMetadata?.format?.seo_description || '';
     const wallpaperKeywords = rawMetadata?.properties?.wallpaper_keywords?.[0]?.[0] || '';
 
-    // Get page icon
-    const pageIcon = rawMetadata?.format?.page_icon;
-    let icon: string | undefined;
-    let iconType: 'emoji' | 'external' | 'file' | undefined;
-
-    if (pageIcon) {
-      // Check if it's an emoji (single character or emoji sequence)
-      if (typeof pageIcon === 'string' && pageIcon.length <= 10 && !/^http/.test(pageIcon)) {
-        icon = pageIcon;
-        iconType = 'emoji';
-      }
-      // Check if it's an external URL
-      else if (typeof pageIcon === 'string' && pageIcon.startsWith('http')) {
-        icon = pageIcon;
-        iconType = 'external';
-      }
-      // Check if it's a Notion file reference
-      else if (typeof pageIcon === 'string' && pageIcon.startsWith('/')) {
-        icon = `https://www.notion.so${pageIcon}`;
-        iconType = 'file';
-      }
-    }
+    // page_icon may be empty for collection_view_page; fallback to collection icon.
+    const rawIcon =
+      rawMetadata?.format?.page_icon ??
+      rawMetadata?.format?.icon ??
+      rawMetadata?.icon ??
+      collection?.icon ??
+      collection?.format?.page_icon;
+    const { icon, iconType } = resolveNotionIcon(rawIcon);
 
     // Get all page IDs from the collection
     const pageGroups = getAllPageIds(

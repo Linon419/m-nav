@@ -63,7 +63,10 @@ export function SiteTitleProvider({ children }: { children: ReactNode }) {
         const link = document.createElement('link');
         link.rel = 'icon';
         link.type = 'image/png';
-        link.href = icon;
+        const cacheBustedIcon = icon.startsWith('data:')
+          ? icon
+          : `${icon}${icon.includes('?') ? '&' : '?'}v=${Date.now()}`;
+        link.href = cacheBustedIcon;
         document.head.appendChild(link);
       }
     };
