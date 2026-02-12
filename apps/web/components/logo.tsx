@@ -30,7 +30,7 @@ export const Logo = ({ className }: { className?: string }) => {
           className={className}
           width={24}
           height={24}
-          unoptimized={iconType === 'external'}
+          unoptimized
         />
       );
     }
