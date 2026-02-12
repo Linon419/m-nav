@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { NotionAPI } from 'notion-client';
-import { idToUuid, getPageTitle } from 'notion-utils';
+import { idToUuid, getPageTitle, defaultMapImageUrl } from 'notion-utils';
 import { cache } from 'react';
 
 // Initialize the Notion client
@@ -119,7 +119,8 @@ export interface PageData {
 }
 
 function resolveNotionIcon(
-  rawIcon: unknown
+  rawIcon: unknown,
+  notionBlockForImageMap?: Record<string, any>
 ): { icon?: string; iconType?: 'emoji' | 'external' | 'file' } {
   if (!rawIcon) return {};
 
@@ -129,6 +130,13 @@ function resolveNotionIcon(
 
     if (/^https?:\/\//.test(iconValue)) {
       return { icon: iconValue, iconType: 'external' };
+    }
+
+    if (iconValue.startsWith('attachment:')) {
+      const mappedUrl = notionBlockForImageMap
+        ? defaultMapImageUrl(iconValue, notionBlockForImageMap as any)
+        : iconValue;
+      return { icon: mappedUrl, iconType: 'file' };
     }
 
     if (iconValue.startsWith('/')) {
@@ -146,6 +154,13 @@ function resolveNotionIcon(
     }
 
     if (typeof iconObject.url === 'string') {
+      if (iconObject.url.startsWith('attachment:')) {
+        const mappedUrl = notionBlockForImageMap
+          ? defaultMapImageUrl(iconObject.url, notionBlockForImageMap as any)
+          : iconObject.url;
+        return { icon: mappedUrl, iconType: 'file' };
+      }
+
       const iconType = iconObject.url.startsWith('http') ? 'external' : 'file';
       return { icon: iconObject.url, iconType };
     }
@@ -202,7 +217,7 @@ const getPageDataInternal = async (): Promise<PageData> => {
       rawMetadata?.icon ??
       collection?.icon ??
       collection?.format?.page_icon;
-    const { icon, iconType } = resolveNotionIcon(rawIcon);
+    const { icon, iconType } = resolveNotionIcon(rawIcon, rawMetadata);
 
     // Get all page IDs from the collection
     const pageGroups = getAllPageIds(
